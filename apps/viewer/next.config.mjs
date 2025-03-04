@@ -5,7 +5,6 @@ import { fileURLToPath } from "url";
 import { configureRuntimeEnv } from "next-runtime-env/build/configure.js";
 
 const __filename = fileURLToPath(import.meta.url);
-
 const __dirname = dirname(__filename);
 
 const injectViewerUrlIfVercelPreview = (val) => {
@@ -14,19 +13,20 @@ const injectViewerUrlIfVercelPreview = (val) => {
     process.env.VERCEL_ENV !== "preview" ||
     !process.env.VERCEL_BUILDER_PROJECT_NAME ||
     !process.env.NEXT_PUBLIC_VERCEL_VIEWER_PROJECT_NAME
-  )
+  ) {
     return;
+  }
   process.env.NEXT_PUBLIC_VIEWER_URL = `https://${process.env.VERCEL_BRANCH_URL}`;
-  if (process.env.NEXT_PUBLIC_CHAT_API_URL?.includes("{{pr_id}}"))
+  if (process.env.NEXT_PUBLIC_CHAT_API_URL?.includes("{{pr_id}}")) {
     process.env.NEXT_PUBLIC_CHAT_API_URL =
       process.env.NEXT_PUBLIC_CHAT_API_URL.replace(
         "{{pr_id}}",
-        process.env.VERCEL_GIT_PULL_REQUEST_ID,
+        process.env.VERCEL_GIT_PULL_REQUEST_ID
       );
+  }
 };
 
 injectViewerUrlIfVercelPreview(process.env.NEXT_PUBLIC_VIEWER_URL);
-
 configureRuntimeEnv();
 
 const landingPagePaths = [
@@ -51,6 +51,7 @@ const nextConfig = {
   reactStrictMode: true,
   output: "standalone",
   experimental: {
+    appDir: true, // ✅ Ensures Next.js recognizes the /app directory
     outputFileTracingRoot: join(__dirname, "../../"),
     serverComponentsExternalPackages: ["isolated-vm"],
     instrumentationHook: true,
@@ -74,8 +75,9 @@ const nextConfig = {
   },
   async rewrites() {
     return {
-      beforeFiles: (process.env.LANDING_PAGE_URL
+      beforeFiles: process.env.LANDING_PAGE_URL
         ? [
+
             {
               source: "/_build/assets/:asset*",
               destination: `${process.env.LANDING_PAGE_URL}/_build/assets/:asset*`,
